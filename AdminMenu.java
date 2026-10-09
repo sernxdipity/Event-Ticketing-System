@@ -84,10 +84,13 @@ public class AdminMenu {
             System.out.println("4. Update Event");
             System.out.println("5. Add Venue");
             System.out.println("6. View Venues");
-            System.out.println("7. Return to Main Menu");
+            System.out.println("7. Update Venue");
+            System.out.println("8. Search Venue");
+            System.out.println("9. Return to Main Menu");
 
             choice = readInt("Enter your choice: ");
 
+            
             switch (choice) {
                 case 1:
                     addEvent();
@@ -114,6 +117,14 @@ public class AdminMenu {
                     break;
 
                 case 7:
+                    updateVenue();
+                    break;
+
+                case 8:
+                    searchVenue();
+                    break;
+
+                case 9:
                     System.out.println("Returning to Main Menu...");
                     break;
 
@@ -121,7 +132,7 @@ public class AdminMenu {
                     System.out.println("Invalid choice. Please try again.");
             }
 
-        } while (choice != 7);
+        } while (choice != 9);
     }
 
     // Add a new venue
@@ -152,6 +163,78 @@ public class AdminMenu {
 
         Venue venue = new Venue(venueId, name, location, capacity);
         admin.addVenue(venue);
+    }
+
+
+    // Update venue details
+    private void updateVenue() {
+
+        System.out.println("\n===== UPDATE VENUE =====");
+
+        int venueId = readInt("Enter Venue ID: ");
+        Venue venue = admin.searchVenue(venueId);
+
+        if (venue == null) {
+            System.out.println("Venue not found.");
+            return;
+        }
+
+        System.out.println("\n1. Update Venue Name");
+        System.out.println("2. Update Venue Location");
+        System.out.println("3. Update Venue Capacity");
+
+        int choice = readInt("Enter your choice: ");
+
+        switch (choice) {
+
+            case 1:
+                System.out.print("Enter New Venue Name: ");
+                String newName = scanner.nextLine();
+
+                if (newName.trim().isEmpty()) {
+                    System.out.println("Venue name cannot be empty.");
+                } else {
+                    admin.updateVenueName(venueId, newName);
+                    System.out.println("Venue name updated!");
+                }
+                break;
+
+            case 2:
+                System.out.print("Enter New Venue Location: ");
+                String newLocation = scanner.nextLine();
+
+                if (newLocation.trim().isEmpty()) {
+                    System.out.println("Venue location cannot be empty.");
+                } else {
+                    admin.updateVenueLocation(venueId, newLocation);
+                    System.out.println("Venue location updated!");
+                }
+                break;
+
+            case 3:
+                int newCapacity = readInt("Enter New Capacity: ");
+                admin.updateVenueCapacity(venueId, newCapacity);
+                break;
+
+            default:
+                System.out.println("Invalid choice.");
+        }
+    }
+
+
+    // Search venue by ID
+    private void searchVenue() {
+
+        System.out.println("\n===== SEARCH VENUE =====");
+
+        int venueId = readInt("Enter Venue ID: ");
+        Venue venue = admin.searchVenue(venueId);
+
+        if (venue != null) {
+            venue.displayVenueDetails();
+        } else {
+            System.out.println("Venue not found.");
+        }
     }
 
     // Add a concert or conference

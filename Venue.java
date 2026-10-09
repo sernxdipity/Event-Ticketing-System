@@ -31,20 +31,31 @@ public class Venue {
         return capacity;
     }
 
-    // Setter methods
+    
+    // Update venue name
     public void setVenueName(String venueName) {
-        this.venueName = venueName;
+        if (venueName != null && !venueName.trim().isEmpty()) {
+            this.venueName = venueName;
+        } else {
+            System.out.println("Venue name cannot be empty.");
+        }
     }
 
+    // Update venue location
     public void setLocation(String location) {
-        this.location = location;
+        if (location != null && !location.trim().isEmpty()) {
+            this.location = location;
+        } else {
+            System.out.println("Venue location cannot be empty.");
+        }
     }
 
+    // Update venue capacity
     public void setCapacity(int capacity) {
         if (capacity > 0) {
             this.capacity = capacity;
         } else {
-            System.out.println("Capacity must be greater than 0.");
+            System.out.println("Venue capacity must be greater than 0.");
         }
     }
 

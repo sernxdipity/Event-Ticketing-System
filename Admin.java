@@ -166,4 +166,37 @@ public class Admin {
             System.out.println("Venue not found.");
         }
     }
+
+
+    // Update venue capacity
+    public void updateVenueCapacity(int venueId, int newCapacity) {
+
+        Venue venue = searchVenue(venueId);
+
+        if (venue == null) {
+            System.out.println("Venue not found.");
+            return;
+        }
+
+        if (newCapacity <= 0) {
+            System.out.println("Invalid venue capacity.");
+            return;
+        }
+
+        // Prevent capacity from becoming smaller than assigned events
+        for (Event event : events) {
+            if (event.getVenue().getVenueId() == venueId &&
+                event.getMaxCapacity() > newCapacity) {
+
+                System.out.println(
+                    "Cannot reduce capacity below an existing event's capacity."
+                );
+                return;
+            }
+        }
+
+        venue.setCapacity(newCapacity);
+        System.out.println("Venue capacity updated successfully!");
+    }
+
 }
