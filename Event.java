@@ -10,6 +10,9 @@ public abstract class Event {
     private double baseTicketPrice;
     private int maxCapacity;
     private int availableSeats;
+    private int standardCapacity;
+    private int vipCapacity;
+    private double vipTicketPrice;
     // Event scheduling
     private LocalDateTime eventDateTime;
 
@@ -73,6 +76,54 @@ public abstract class Event {
         }
     }
 
+
+
+    // Configure or update ticket tier allocations
+    public boolean configureTicketTiers(int standardSeats,
+                                        int vipSeats,
+                                        double vipPrice) {
+
+        // Validate seat quantities
+        if (standardSeats < 0 || vipSeats < 0) {
+            System.out.println("Seat quantities cannot be negative.");
+            return false;
+        }
+
+        // Check that total seats match event capacity
+        if (standardSeats + vipSeats != maxCapacity) {
+            System.out.println(
+                "Total allocated seats must equal event capacity."
+            );
+            return false;
+        }
+
+        // Validate VIP ticket price
+        if (vipPrice < 0) {
+            System.out.println("VIP ticket price cannot be negative.");
+            return false;
+        }
+
+        // Store ticket allocations
+        standardCapacity = standardSeats;
+        vipCapacity = vipSeats;
+        vipTicketPrice = vipPrice;
+
+        System.out.println("Ticket allocation updated successfully!");
+        return true;
+    }
+
+    // Getter methods for ticket tiers
+    public int getStandardCapacity() {
+        return standardCapacity;
+    }
+
+    public int getVipCapacity() {
+        return vipCapacity;
+    }
+
+    public double getVipTicketPrice() {
+        return vipTicketPrice;
+    }
 
     // Get event date and time
     public LocalDateTime getEventDateTime() {
@@ -138,9 +189,23 @@ public abstract class Event {
 
         System.out.println("Maximum Capacity: " + maxCapacity);
         System.out.println("Available Seats: " + availableSeats);
-    }
 
+        // Display ticket tier information
+        System.out.println("\n===== TICKET ALLOCATION =====");
+        System.out.println("Standard Seats: " + standardCapacity);
+        System.out.println("VIP Seats: " + vipCapacity);
+
+        System.out.printf("Standard Price: RM %.2f%n",
+                          baseTicketPrice);
+
+        if (vipCapacity > 0) {
+            System.out.printf("VIP Price: RM %.2f%n",
+                              vipTicketPrice);
+        }
+
+    }
 
     // Abstract method implemented by event subclasses
     public abstract String getEventType();
+
 }

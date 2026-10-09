@@ -323,6 +323,34 @@ public class AdminMenu {
             );
         }
 
+        
+        // Configure ticket allocation
+        System.out.println("\n===== TICKET ALLOCATION =====");
+
+        int standardSeats;
+        int vipSeats = 0;
+        double vipPrice = 0;
+
+        boolean supportsVip = event instanceof ConcertEvent &&
+            ((ConcertEvent) event).isVipAvailable();
+
+        if (supportsVip) {
+            standardSeats = readInt("Enter Standard Seats: ");
+            vipSeats = readInt("Enter VIP Seats: ");
+            vipPrice = readDouble("Enter VIP Price (RM): ");
+        } else {
+            standardSeats = capacity;
+        }
+
+        boolean allocationValid = event.configureTicketTiers(
+            standardSeats, vipSeats, vipPrice
+        );
+
+        if (!allocationValid) {
+            System.out.println("Event was not added.");
+            return;
+        }
+
         // Request event schedule
         LocalDateTime dateTime = readEventDateTime();
 
@@ -371,6 +399,7 @@ public class AdminMenu {
         System.out.println("1. Update Event Title");
         System.out.println("2. Update Ticket Price");
         System.out.println("3. Update Event Schedule");
+        System.out.println("4. Update Ticket Allocation");
 
         int choice = readInt("Enter your choice: ");
 
@@ -407,9 +436,63 @@ public class AdminMenu {
                     System.out.println("Event schedule updated!");
                 }
                 break;
+            
+            case 4:
+                updateTicketAllocation(event);
+                break;
+
 
             default:
                 System.out.println("Invalid choice.");
         }
     }
+
+
+    // Update ticket allocation for an existing event
+    private void updateTicketAllocation(Event event) {
+
+        System.out.println("\n===== UPDATE TICKET ALLOCATION =====");
+
+        System.out.println("Event: " + event.getTitle());
+        System.out.println("Maximum Capacity: " + event.getMaxCapacity());
+        System.out.println("Current Standard Seats: " +
+                           event.getStandardCapacity());
+        System.out.println("Current VIP Seats: " +
+                           event.getVipCapacity());
+
+        // Check whether this concert supports VIP tickets
+        boolean supportsVip = event instanceof ConcertEvent &&
+            ((ConcertEvent) event).isVipAvailable();
+
+        if (!supportsVip) {
+            System.out.println(
+                "This event only supports Standard tickets."
+            );
+            return;
+        }
+
+        // Read new ticket allocation
+        int standardSeats = readInt("Enter New Standard Seats: ");
+        int vipSeats = readInt("Enter New VIP Seats: ");
+        double vipPrice = readDouble("Enter New VIP Price (RM): ");
+
+        // Validate and update the ticket allocation
+        boolean updated = event.configureTicketTiers(
+            standardSeats, vipSeats, vipPrice
+        );
+
+        if (updated) {
+            System.out.println("New ticket allocations:");
+            System.out.println("Standard: " +
+                               event.getStandardCapacity());
+            System.out.println("VIP: " +
+                               event.getVipCapacity());
+
+            System.out.printf("VIP Price: RM %.2f%n",
+                              event.getVipTicketPrice());
+        } else {
+            System.out.println("Ticket allocation was not updated.");
+        }
+    }
+
 }
