@@ -1,4 +1,5 @@
 import java.util.ArrayList;
+import java.time.LocalDateTime;
 
 public class Admin {
 
@@ -61,6 +62,40 @@ public class Admin {
             System.out.println("-----------------------------");
         }
     }
+
+
+    // Display only upcoming events
+    public void viewUpcomingEvents() {
+
+        System.out.println("\n===== UPCOMING EVENTS =====");
+
+        boolean eventFound = false;
+
+        // Check every event in the system
+        for (Event event : events) {
+
+            LocalDateTime eventDate = event.getEventDateTime();
+
+            // Display events scheduled in the future
+            if (eventDate != null &&
+                eventDate.isAfter(LocalDateTime.now())) {
+
+                event.displayEventDetails();
+                System.out.println("Event Type: " +
+                                   event.getEventType());
+
+                System.out.println("-----------------------------");
+
+                eventFound = true;
+            }
+        }
+
+        // Display a message when no upcoming events exist
+        if (!eventFound) {
+            System.out.println("No upcoming events available.");
+        }
+    }
+
 
     // Search for an event by ID
     public Event searchEvent(int eventId) {

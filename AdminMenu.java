@@ -86,7 +86,8 @@ public class AdminMenu {
             System.out.println("6. View Venues");
             System.out.println("7. Update Venue");
             System.out.println("8. Search Venue");
-            System.out.println("9. Return to Main Menu");
+            System.out.println("9. View Upcoming Events");
+            System.out.println("10. Return to Main Menu");
 
             choice = readInt("Enter your choice: ");
 
@@ -125,6 +126,10 @@ public class AdminMenu {
                     break;
 
                 case 9:
+                    admin.viewUpcomingEvents();
+                    break;
+                
+                case 10:
                     System.out.println("Returning to Main Menu...");
                     break;
 
@@ -132,7 +137,7 @@ public class AdminMenu {
                     System.out.println("Invalid choice. Please try again.");
             }
 
-        } while (choice != 9);
+        } while (choice != 10);
     }
 
     // Add a new venue
