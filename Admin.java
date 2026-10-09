@@ -96,6 +96,22 @@ public class Admin {
         }
     }
 
+    // Allow other parts of the system to retrieve upcoming events
+    public ArrayList<Event> getUpcomingEvents() {
+
+        ArrayList<Event> upcomingEvents = new ArrayList<Event>();
+
+        for (Event event : events) {
+            if (event.getEventDateTime() != null &&
+                event.getEventDateTime().isAfter(LocalDateTime.now())) {
+
+                upcomingEvents.add(event);
+            }
+        }
+
+        return upcomingEvents;
+    }
+
 
     // Search for an event by ID
     public Event searchEvent(int eventId) {
