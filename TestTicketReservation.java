@@ -1,6 +1,9 @@
 public class TestTicketReservation {
      public static void main(String[] args) {
 
+        ReservationManager manager = new ReservationManager();
+        int reservationId = manager.generateReservationId();
+
         // Step 1: Create an attendee
         Attendee attendee = new Attendee(
             101,
@@ -35,7 +38,7 @@ public class TestTicketReservation {
 
         // Step 6: Find and lock a seat
         Seat seat = inventory.findSeat("S001");
-        boolean locked = inventory.lockSeat("S001");
+        boolean locked = inventory.lockSeat("S001", reservationId);
 
         if (!locked) {
             System.out.println("Unable to reserve seat.");
@@ -44,7 +47,7 @@ public class TestTicketReservation {
 
         // Step 7: Create the reservation
         TicketReservation reservation = new TicketReservation(
-            1001,
+            reservationId,
             attendee,
             event,
             seat
@@ -67,7 +70,7 @@ public class TestTicketReservation {
         System.out.println("Confirm locked seat: " + firstAttempt);
 
         //test 2: booking the seat
-        boolean booked = inventory.bookSeat("S001");
+        boolean booked = inventory.bookSeat("S001", 1001);
         System.out.println("Seat booking successful: " + booked);
 
         //test 3: confirm after the seat is booked

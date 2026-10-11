@@ -23,7 +23,7 @@ public class TestCancellation {
 
         //Step 5: lock seat
         Seat seat = inventory.findSeat("S002");
-        inventory.lockSeat("S002");
+        inventory.lockSeat("S002", 1002);
 
         //Step 6: Create reservation
         TicketReservation reservation = new TicketReservation(

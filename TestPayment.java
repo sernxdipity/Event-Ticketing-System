@@ -28,7 +28,7 @@ public class TestPayment {
         // Step 6: Select and lock seat
         Seat seat = inventory.findSeat("S001");
 
-        boolean locked = inventory.lockSeat("S001");
+        boolean locked = inventory.lockSeat("S001", 1001);
 
         if (!locked) {
             System.out.println("Unable to lock seat.");

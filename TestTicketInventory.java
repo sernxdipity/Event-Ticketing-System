@@ -46,11 +46,11 @@ public class TestTicketInventory {
         //test locking an available seat
         System.out.println("\n=== SEAT LOCK TEST ===");
 
-        boolean firstLock = inventory.lockSeat("S003");
+        boolean firstLock = inventory.lockSeat("S003", 1001);
         System.out.println("First lock successful: " + firstLock);
 
         // Try locking the same seat again
-        boolean secondLock = inventory.lockSeat("S003");
+        boolean secondLock = inventory.lockSeat("S003", 1001);
         System.out.println("Second lock successful: " + secondLock);
 
         // Display updated inventory
@@ -59,15 +59,15 @@ public class TestTicketInventory {
         //test booking confirmation
         System.out.println("\n===== BOOKING TEST =====");
 
-        boolean firstBooking = inventory.bookSeat("S003");
+        boolean firstBooking = inventory.bookSeat("S003", 1001);
         System.out.println("First booking successful: " + firstBooking);
 
         //Attempt to book the same seat again
-        boolean secondBooking = inventory.bookSeat("S003");
+        boolean secondBooking = inventory.bookSeat("S003", 1001);
         System.out.println("Second booking succesful: " + secondBooking);
 
         // Attempt to book a seat that has not been locked
-        boolean unlockedBooking = inventory.bookSeat("S004");
+        boolean unlockedBooking = inventory.bookSeat("S004", 1001);
         System.out.println("Booking unlocked seat: " + unlockedBooking);
 
         //Display updated inventory
@@ -77,18 +77,18 @@ public class TestTicketInventory {
         System.out.println("\n==== SEAT RELEASE TEST ====");
 
         //lock a vip seat
-        inventory.lockSeat("V001");
+        inventory.lockSeat("V001", 1001);
 
         //release the vip seat
-        boolean firstRelease = inventory.releaseSeat("V001");
+        boolean firstRelease = inventory.releaseSeat("V001", 1001);
         System.out.println("First release successful: " + firstRelease);
 
         //try releasing the same seat again
-        boolean secondRelease = inventory.releaseSeat("V001");
+        boolean secondRelease = inventory.releaseSeat("V001", 1001);
         System.out.println("Second release successful: " + secondRelease);
 
         // Try releasing a confirmed booked seat
-        boolean bookedRelease = inventory.releaseSeat("S003");
+        boolean bookedRelease = inventory.releaseSeat("S003", 1001);
         System.out.println("Release booked seat: " + bookedRelease);
 
         // Display updated inventory

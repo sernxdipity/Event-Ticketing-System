@@ -13,6 +13,12 @@ public class TicketReservation {
         throw new IllegalArgumentException("Reservation details cannot be null.");
     }
 
+    if (reservationId <= 0) {
+        throw new IllegalArgumentException(
+            "Reservation ID must be greater than zero."
+        );
+    }
+
     this.reservationId = reservationId;
     this.attendee = attendee;
     this.event = event;
@@ -83,6 +89,7 @@ public class TicketReservation {
 
         if (status != ReservationStatus.PENDING) {
             System.out.println("Reservation is not pending.");
+            return false;
         }
 
         if (inventory.getEvent() != event) {
@@ -100,7 +107,7 @@ public class TicketReservation {
             return false;
         }
 
-        if (!inventory.bookSeat(seat.getSeatId())) {
+        if (!inventory.bookSeat(seat.getSeatId(), reservationId)) {
             System.out.println("Seat booking failed.");
             return false;
         }
@@ -121,7 +128,7 @@ public class TicketReservation {
             return false;
         }
 
-        if (!seat.releaseSeat()) {
+        if (!seat.releaseSeat(reservationId)) {
             System.out.println("Unable to release seat.");
             return false;
         }

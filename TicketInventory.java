@@ -50,7 +50,7 @@ public class TicketInventory {
     }
 
     //lock a specific seat during checkout
-    public boolean lockSeat(String seatId) {
+    public boolean lockSeat(String seatId, int reservationId) {
         Seat seat = findSeat(seatId);
 
         if (seat == null) {
@@ -58,17 +58,17 @@ public class TicketInventory {
             return false;
         }
 
-        if (seat.lockSeat()){
+        if (seat.lockSeat(reservationId)) {
             System.out.println("Seat " + seatId + " locked successfully.");
             return true;
         }
 
-        System.out.println("Seat " + seatId + " is not available.");
+        System.out.println("Seat " + seatId + " is not available or reservation ID is invalid.");
         return false;
     }
 
     //confirm a locked seat after successful payment
-    public boolean bookSeat(String seatId) {
+    public boolean bookSeat(String seatId, int reservationId) {
 
         Seat seat = findSeat(seatId);
 
@@ -77,7 +77,7 @@ public class TicketInventory {
             return false;
         }
 
-        if(seat.bookSeat()) {
+        if(seat.bookSeat(reservationId)) {
             System.out.println("Seat " + seatId + " booked successfully.");
             return true;
         }
@@ -88,7 +88,7 @@ public class TicketInventory {
 
     
     // Release a locked seat
-    public boolean releaseSeat(String seatId) {
+    public boolean releaseSeat(String seatId, int reservationId) {
 
         Seat seat = findSeat(seatId);
 
@@ -97,12 +97,13 @@ public class TicketInventory {
             return false;
         }
 
-        if (seat.releaseSeat()) {
+        if (seat.releaseSeat(reservationId)) {
             System.out.println("Seat " + seatId + " released successfully.");
             return true;
         }
 
-        System.out.println("Seat " + seatId + " cannot be released.");
+        System.out.println("Seat " + seatId +
+            " cannot be released by reservation " + reservationId + ".");
         return false;
     }
 

@@ -26,7 +26,7 @@ public class TestDigitalTicket {
 
         // Step 5: Lock seat
         Seat seat = inventory.findSeat("S001");
-        inventory.lockSeat("S001");
+        inventory.lockSeat("S001", 1001);
 
         // Step 6: Create reservation
         TicketReservation reservation = new TicketReservation(
@@ -61,7 +61,7 @@ public class TestDigitalTicket {
         System.out.println("\n===== PENDING TICKET TEST =====");
 
         Seat pendingSeat = inventory.findSeat("S002");
-        inventory.lockSeat("S002");
+        inventory.lockSeat("S002", 1001);
 
         TicketReservation pendingReservation = new TicketReservation(
             1002, attendee, event, pendingSeat

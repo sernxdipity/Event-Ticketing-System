@@ -28,7 +28,7 @@ public class TestPaymentProcessing {
         System.out.println("\n===== SUCCESSFUL PAYMENT TEST =====");
 
         Seat seat1 = inventory.findSeat("S001");
-        inventory.lockSeat("S001");
+        inventory.lockSeat("S001", 1001);
 
         TicketReservation reservation1 = new TicketReservation(
             1001, attendee, event, seat1
@@ -67,7 +67,7 @@ public class TestPaymentProcessing {
         System.out.println("\n===== FAILED PAYMENT TEST =====");
 
         Seat seat2 = inventory.findSeat("S002");
-        inventory.lockSeat("S002");
+        inventory.lockSeat("S002", 1002);
 
         TicketReservation reservation2 = new TicketReservation(
             1002, attendee, event, seat2
