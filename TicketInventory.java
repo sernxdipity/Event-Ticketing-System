@@ -18,6 +18,12 @@ public class TicketInventory {
         generateSeats();
     }
 
+    //getter
+    public Event getEvent() {
+        return event;
+    }
+
+
     //display all seats and their current status
     public void displaySeats() {
         System.out.println("\n==== SEAT INVENTORY ====");
@@ -57,7 +63,7 @@ public class TicketInventory {
             return true;
         }
 
-        System.out.println("Seat" + seatId + " is not available.");
+        System.out.println("Seat " + seatId + " is not available.");
         return false;
     }
 
