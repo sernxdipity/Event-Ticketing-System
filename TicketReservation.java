@@ -107,11 +107,21 @@ public class TicketReservation {
             return false;
         }
 
+        if (!event.hasAvailableSeats(1)) {
+            System.out.println("No available event capacity.");
+            return false;
+        }
+
         if (!inventory.bookSeat(seat.getSeatId(), reservationId)) {
             System.out.println("Seat booking failed.");
             return false;
         }
 
+        if (!event.reserveSeats(1)) {
+            System.out.println("Unable to update event availablity.");
+            return false;
+        }
+        
         return confirmReservation();
     }
 

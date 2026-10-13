@@ -250,4 +250,8 @@ public class Admin {
         System.out.println("Venue capacity updated successfully!");
     }
 
+    // Allow other system components to access the event list
+    public ArrayList<Event> getEvents() {
+        return events;
+    }
 }
