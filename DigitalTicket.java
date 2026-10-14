@@ -1,22 +1,38 @@
+import java.time.format.DateTimeFormatter;
+
 public class DigitalTicket {
-    
-    //private attribute
+
+    // Private attributes (Encapsulation)
     private int ticketId;
     private TicketReservation reservation;
     private String ticketCode;
 
-    //constructor
-    public DigitalTicket(int ticketId, TicketReservation reservation, String ticketCode) {
+    // Constructor
+    public DigitalTicket(int ticketId, TicketReservation reservation,
+                         String ticketCode) {
+
+        if (ticketId <= 0) {
+            throw new IllegalArgumentException(
+                "Ticket ID must be greater than zero."
+            );
+        }
+
         if (reservation == null) {
-            throw new IllegalArgumentException("Reservation cannot be null.");
+            throw new IllegalArgumentException(
+                "Reservation cannot be null."
+            );
         }
 
         if (reservation.getStatus() != ReservationStatus.CONFIRMED) {
-            throw new IllegalArgumentException("Only confirmed reservations can receive tickets.");
+            throw new IllegalArgumentException(
+                "Only confirmed reservations can receive tickets."
+            );
         }
 
         if (ticketCode == null || ticketCode.trim().isEmpty()) {
-            throw new IllegalArgumentException("Ticket code cannot be empty.");
+            throw new IllegalArgumentException(
+                "Ticket code cannot be empty."
+            );
         }
 
         this.ticketId = ticketId;
@@ -24,7 +40,7 @@ public class DigitalTicket {
         this.ticketCode = ticketCode;
     }
 
-    //getter
+    // Getter methods
     public int getTicketId() {
         return ticketId;
     }
@@ -37,8 +53,10 @@ public class DigitalTicket {
         return ticketCode;
     }
 
-    //display ticket
+    // Display digital ticket
     public void displayTicket() {
+
+        Event event = reservation.getEvent();
 
         System.out.println("\n==================================");
         System.out.println("          DIGITAL TICKET          ");
@@ -49,9 +67,39 @@ public class DigitalTicket {
 
         System.out.println("----------------------------------");
 
-        System.out.println("Event: " +
-            reservation.getEvent().getTitle());
+        // Event information
+        System.out.println("Event: " + event.getTitle());
+        System.out.println("Event Type: " + event.getEventType());
 
+        System.out.println("Venue: " +
+            event.getVenue().getVenueName());
+
+        System.out.println("Location: " +
+            event.getVenue().getLocation());
+
+        // Display event date and time
+        if (event.getEventDateTime() != null) {
+
+            DateTimeFormatter dateFormatter =
+                DateTimeFormatter.ofPattern("dd-MM-yyyy");
+
+            DateTimeFormatter timeFormatter =
+                DateTimeFormatter.ofPattern("HH:mm");
+
+            System.out.println("Event Date: " +
+                event.getEventDateTime().format(dateFormatter));
+
+            System.out.println("Event Time: " +
+                event.getEventDateTime().format(timeFormatter));
+
+        } else {
+            System.out.println("Event Date: Not Scheduled");
+            System.out.println("Event Time: Not Scheduled");
+        }
+
+        System.out.println("----------------------------------");
+
+        // Attendee information
         System.out.println("Attendee: " +
             reservation.getAttendee().getName());
 
@@ -61,6 +109,9 @@ public class DigitalTicket {
         System.out.println("Ticket Type: " +
             reservation.getSeat().getTicketType());
 
+        System.out.println("----------------------------------");
+
+        // Reservation information
         System.out.println("Reservation ID: " +
             reservation.getReservationId());
 
@@ -68,7 +119,7 @@ public class DigitalTicket {
             reservation.getStatus());
 
         System.out.println("==================================");
+        System.out.println("       ENJOY YOUR EVENT!          ");
+        System.out.println("==================================");
     }
-
-
 }

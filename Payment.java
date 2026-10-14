@@ -17,9 +17,23 @@ public class Payment {
             throw new IllegalArgumentException("Payment amount must be positive.");
         }
 
-        if (paymentMethod == null || paymentMethod.trim().isEmpty()) {
-            throw new IllegalArgumentException("Payment method cannot be empty.");
+        
+        // Validate payment method
+        if (paymentMethod == null ||
+            (!paymentMethod.equalsIgnoreCase("Credit/Debit Card") &&
+             !paymentMethod.equalsIgnoreCase("Online Banking") )) {
+
+            throw new IllegalArgumentException(
+                "Invalid payment method. Please select a supported method."
+            );
         }
+        // Validate payment ID
+        if (paymentId <= 0) {
+            throw new IllegalArgumentException(
+                "Payment ID must be greater than zero."
+            );
+        }
+
 
         this.paymentId = paymentId;
         this.reservation = reservation;

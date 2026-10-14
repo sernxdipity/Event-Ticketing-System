@@ -1,5 +1,6 @@
 import java.util.Scanner;
 import java.util.ArrayList;
+import java.time.format.DateTimeFormatter;
 
 public class AttendeeMenu {
     private Scanner scanner;
@@ -16,6 +17,19 @@ public class AttendeeMenu {
 
         this.reservations = new ArrayList<>();
         this.reservationManager = new ReservationManager();
+    }
+
+    // Format event date and time
+    private String formatEventSchedule(Event event) {
+
+        if (event.getEventDateTime() == null) {
+            return "Not Scheduled";
+        }
+
+        DateTimeFormatter formatter =
+            DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm");
+
+        return event.getEventDateTime().format(formatter);
     }
 
     //display attendee menu
@@ -69,6 +83,8 @@ public class AttendeeMenu {
     }
 
     //case1
+    
+    // Display available events with schedules and ticket prices
     public void viewAvailableEvents() {
 
         System.out.println("\n===== AVAILABLE EVENTS =====");
@@ -79,16 +95,35 @@ public class AttendeeMenu {
         }
 
         for (Event event : events) {
-            System.out.println("---------------------------");
+
+            System.out.println("\n---------------------------");
             System.out.println("Event ID: " + event.getEventId());
             System.out.println("Title: " + event.getTitle());
             System.out.println("Type: " + event.getEventType());
-            System.out.println("Venue: " + event.getVenue().getVenueName());
-            System.out.printf("Standard Price: RM %.2f%n",
-                    event.getBaseTicketPrice());
-            System.out.println("Available Seats: " + event.getAvailableSeats());
+
+            System.out.println("Venue: " +
+                event.getVenue().getVenueName());
+
+            // Display event date and time
+            System.out.println("Date & Time: " +
+                formatEventSchedule(event));
+
+            // Display ticket prices
+            System.out.println("\n===== TICKET PRICES =====");
+
+            System.out.printf("Standard: RM %.2f%n",
+                event.getBaseTicketPrice());
+
+            if (event.getVipCapacity() > 0) {
+                System.out.printf("VIP: RM %.2f%n",
+                    event.getVipTicketPrice());
+            }
+
+            System.out.println("Available Seats: " +
+                event.getAvailableSeats());
         }
     }
+
 
     //case2
     public void viewAvailableSeats() {
@@ -174,6 +209,20 @@ public class AttendeeMenu {
         System.out.println("Event: " + selectedEvent.getTitle());
         System.out.println("Event Type: " + selectedEvent.getEventType());
 
+        System.out.println("Venue: " +
+            selectedEvent.getVenue().getVenueName());
+
+        System.out.println("Date & Time: " +
+            formatEventSchedule(selectedEvent));
+
+        System.out.printf("Standard Ticket: RM %.2f%n",
+            selectedEvent.getBaseTicketPrice());
+
+        if (selectedEvent.getVipCapacity() > 0) {
+            System.out.printf("VIP Ticket: RM %.2f%n",
+                selectedEvent.getVipTicketPrice());
+        }
+
         
         //Find the ticket inventory for the selected event
         TicketInventory selectedInventory = null;
@@ -224,22 +273,46 @@ public class AttendeeMenu {
         System.out.println("Ticket Type: " + selectedSeat.getTicketType());
         System.out.println("Seat Status: " + selectedSeat.getStatus());
 
-        //Ask for attendee details
-        System.out.println("\n===== ATTENDEE DETAILS =====");
+        
+    // Ask for attendee details
+    System.out.println("\n===== ATTENDEE DETAILS =====");
 
+    // Clear the newline remaining after seat selection
+    scanner.nextLine();
+
+    // Validate attendee name
+    String name;
+
+    while (true) {
         System.out.print("Enter your name: ");
-        scanner.nextLine(); // Clear the remaining newline
-        String name = scanner.nextLine();
+        name = scanner.nextLine().trim();
 
-        System.out.print("Enter your email: ");
-        String email = scanner.nextLine();
-
-        //Validate attendee details
-        if (name.trim().isEmpty() || email.trim().isEmpty()) {
-            System.out.println("Name and email cannot be empty.");
-            selectedInventory.releaseSeat(seatId, reservationId);
-            return;
+        if (name.matches("[\\p{L}]+(?:[ .'-][\\p{L}]+)*")) {
+            break;
         }
+
+        System.out.println(
+            "Invalid name. Please enter a name using letters."
+        );
+    }
+
+    // Validate attendee email
+    String email;
+
+    while (true) {
+        System.out.print("Enter your email: ");
+        email = scanner.nextLine().trim();
+
+        if (email.matches(
+                "[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}")) {
+            break;
+        }
+
+        System.out.println(
+            "Invalid email. Example: example@gmail.com"
+        );
+    }
+
 
         //Create attendee
         Attendee attendee = new Attendee(
@@ -279,23 +352,59 @@ public class AttendeeMenu {
 
         System.out.printf("Total Amount: RM %.2f%n", amount);
 
-        System.out.print("Enter Payment Method (Card / Online Banking): ");
-        String paymentMethod = scanner.nextLine().trim();
+        
+    // Display available payment methods
+    System.out.println("\nSelect Payment Method:");
+    System.out.println("1. Credit/Debit Card");
+    System.out.println("2. Online Banking");
 
-        if (paymentMethod.isEmpty()) {
-            System.out.println("Payment method cannot be empty.");
-            reservation.cancelReservation();
-            return;
+    String paymentMethod;
+
+    // Validate payment method selection
+    while (true) {
+
+        System.out.print("Enter your choice (1-2): ");
+        String paymentChoice = scanner.nextLine().trim();
+
+        if (paymentChoice.equals("1")) {
+            paymentMethod = "Credit/Debit Card";
+            break;
+
+        } else if (paymentChoice.equals("2")) {
+            paymentMethod = "Online Banking";
+            break;
+
+        } else {
+            System.out.println(
+                "Invalid payment method. Please select 1 or 2."
+            );
         }
+    }
+
 
         //create payment
         Payment payment = new Payment(reservationId, reservation, amount, paymentMethod);
 
-        //simulate payment result
-        System.out.println("Simulate successful payment? (Y/N): ");
-        String paymentChoice = scanner.nextLine().trim();
+        
+        // Simulate payment result
+        String paymentChoice;
 
-        boolean paymentSuccess = paymentChoice.equalsIgnoreCase("Y");
+        while (true) {
+            System.out.print("Simulate successful payment? (Y/N): ");
+            paymentChoice = scanner.nextLine().trim();
+
+            if (paymentChoice.equalsIgnoreCase("Y") ||
+                paymentChoice.equalsIgnoreCase("N")) {
+                break;
+            }
+
+            System.out.println(
+                "Invalid input. Please enter Y or N."
+            );
+        }
+
+        boolean paymentSuccess =
+            paymentChoice.equalsIgnoreCase("Y");
 
         if (!payment.processPayment(paymentSuccess)) {
             System.out.println("Payment unsuccessful.");
@@ -310,19 +419,27 @@ public class AttendeeMenu {
         }
 
         System.out.println("\n==== BOOKING SUCCESSFULL ====");
+        System.out.println("Payment successful via " + paymentMethod + "!");
+        System.out.printf("Amount Paid: RM %.2f%n", amount);
         System.out.println("Reservation ID: " + reservation.getReservationId());
         System.out.println("Reservation Status: " + reservation.getStatus());
         System.out.println("Seat Status: " + selectedSeat.getStatus());
 
-        //generate digital ticket after successful booking
-        System.out.println("\nGenerating your digital ticket...");
+        
+        // Retrieve digital ticket owned by the reservation
+        System.out.println("\n===== YOUR DIGITAL TICKET =====");
 
-        int ticketId = reservation.getReservationId();
-        String ticketCode = "TKT-" + ticketId;
+        DigitalTicket digitalTicket =
+            reservation.getDigitalTicket();
 
-        DigitalTicket digitalTicket = new DigitalTicket(ticketId, reservation, ticketCode);
+        if (digitalTicket != null) {
+            digitalTicket.displayTicket();
+        } else {
+            System.out.println(
+                "Digital ticket is not available."
+            );
+        }
 
-        digitalTicket.displayTicket();
 
     }
 
@@ -348,6 +465,8 @@ public class AttendeeMenu {
                 System.out.println("\n--------------------------");
                 System.out.println("Reservation ID: " + reservation.getReservationId());
                 System.out.println("Event: " + reservation.getEvent().getTitle());
+                System.out.println("Date & Time: " +
+                    formatEventSchedule(reservation.getEvent()));
                 System.out.println("Seat: " + reservation.getSeat().getSeatId());
                 System.out.println("Ticket Type: " + reservation.getSeat().getTicketType());
                 System.out.println("Status: " + reservation.getStatus());

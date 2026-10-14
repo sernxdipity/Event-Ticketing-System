@@ -1,3 +1,5 @@
+import java.time.LocalDateTime;
+
 public class TicketReservation {
     
     //PRIVATE attributes
@@ -6,6 +8,10 @@ public class TicketReservation {
     private Event event;
     private Seat seat;
     private ReservationStatus status;
+    // Record when the reservation was created
+    private LocalDateTime bookingTimestamp;
+    // Composition: reservation owns its digital ticket
+    private DigitalTicket digitalTicket;
 
     //conversion
     public TicketReservation(int reservationId, Attendee attendee, Event event, Seat seat) {
@@ -24,6 +30,10 @@ public class TicketReservation {
     this.event = event;
     this.seat = seat;
     this.status = ReservationStatus.PENDING;
+    // No ticket exists until the reservation is confirmed
+    this.digitalTicket = null;
+    // Store the current date and time
+    this.bookingTimestamp = LocalDateTime.now();
     }
 
     //getter
@@ -46,23 +56,50 @@ public class TicketReservation {
     public ReservationStatus getStatus() {
         return status;
     }
+    // Retrieve reservation timestamp
+    public LocalDateTime getBookingTimestamp() {
+        return bookingTimestamp;
+    }
+    // Retrieve the digital ticket
+    public DigitalTicket getDigitalTicket() {
+        return digitalTicket;
+    }
 
-    //confirm reservation
+    
+    // Confirm reservation and generate digital ticket
     public boolean confirmReservation() {
+
         if (status != ReservationStatus.PENDING) {
             System.out.println("Reservation cannot be confirmed.");
             return false;
         }
 
         if (seat.getStatus() != SeatStatus.BOOKED) {
-            System.out.println("Seat must be booked before confirmation.");
+            System.out.println(
+                "Seat must be booked before confirmation."
+            );
             return false;
         }
 
+        // Confirm the reservation
         status = ReservationStatus.CONFIRMED;
+
+        // Composition: create the ticket inside the reservation
+        int ticketId = reservationId;
+        String ticketCode = "TKT-" + ticketId;
+
+        digitalTicket = new DigitalTicket(
+            ticketId,
+            this,
+            ticketCode
+        );
+
         System.out.println("Reservation confirmed successfully!");
+        System.out.println("Digital ticket generated successfully!");
+
         return true;
     }
+
 
     //complete booking
     public boolean completeBooking(TicketInventory inventory, Payment payment) {
