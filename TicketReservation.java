@@ -12,29 +12,76 @@ public class TicketReservation {
     private LocalDateTime bookingTimestamp;
     // Composition: reservation owns its digital ticket
     private DigitalTicket digitalTicket;
+    // Early-bird discount settings
+    private static final int EARLY_BIRD_DAYS = 14;
+    private static final double EARLY_BIRD_RATE = 0.10;
 
-    //conversion
-    public TicketReservation(int reservationId, Attendee attendee, Event event, Seat seat) {
-    if (attendee == null || event == null || seat == null) {
-        throw new IllegalArgumentException("Reservation details cannot be null.");
+    // Reservation price details
+    private final double originalPrice;
+    private final double discountAmount;
+    private final double finalAmount;
+
+
+    // Constructor
+    public TicketReservation(int reservationId, Attendee attendee,
+                             Event event, Seat seat) {
+
+        if (attendee == null || event == null || seat == null) {
+            throw new IllegalArgumentException(
+                "Reservation details cannot be null."
+            );
+        }
+
+        if (reservationId <= 0) {
+            throw new IllegalArgumentException(
+                "Reservation ID must be greater than zero."
+            );
+        }
+
+        this.reservationId = reservationId;
+        this.attendee = attendee;
+        this.event = event;
+        this.seat = seat;
+        this.status = ReservationStatus.PENDING;
+
+        // No ticket exists until reservation is confirmed
+        this.digitalTicket = null;
+
+        // Store the current date and time
+        this.bookingTimestamp = LocalDateTime.now();
+
+        // Determine original ticket price
+        if (seat.getTicketType().equalsIgnoreCase("VIP")) {
+            originalPrice = event.getVipTicketPrice();
+        } else {
+            originalPrice = event.getBaseTicketPrice();
+        }
+
+        // Check early-bird eligibility
+        boolean isEarlyBird = false;
+
+        if (event.getEventDateTime() != null) {
+            LocalDateTime deadline =
+                event.getEventDateTime().minusDays(EARLY_BIRD_DAYS);
+
+            isEarlyBird = !bookingTimestamp.isAfter(deadline);
+        }
+
+        // Calculate discount
+        if (isEarlyBird) {
+            discountAmount =
+                Math.round(originalPrice * EARLY_BIRD_RATE * 100.0)
+                / 100.0;
+        } else {
+            discountAmount = 0.0;
+        }
+
+        // Calculate final amount
+        finalAmount =
+            Math.round((originalPrice - discountAmount) * 100.0)
+            / 100.0;
     }
 
-    if (reservationId <= 0) {
-        throw new IllegalArgumentException(
-            "Reservation ID must be greater than zero."
-        );
-    }
-
-    this.reservationId = reservationId;
-    this.attendee = attendee;
-    this.event = event;
-    this.seat = seat;
-    this.status = ReservationStatus.PENDING;
-    // No ticket exists until the reservation is confirmed
-    this.digitalTicket = null;
-    // Store the current date and time
-    this.bookingTimestamp = LocalDateTime.now();
-    }
 
     //getter
     public int getReservationId() {
@@ -63,6 +110,20 @@ public class TicketReservation {
     // Retrieve the digital ticket
     public DigitalTicket getDigitalTicket() {
         return digitalTicket;
+    }
+    // Get original ticket price
+    public double getOriginalPrice() {
+        return originalPrice;
+    }
+
+    // Get early-bird discount amount
+    public double getDiscountAmount() {
+        return discountAmount;
+    }
+
+    // Get final ticket price after discount
+    public double getFinalAmount() {
+        return finalAmount;
     }
 
     
@@ -144,22 +205,24 @@ public class TicketReservation {
             return false;
         }
 
-        if (!event.hasAvailableSeats(1)) {
-            System.out.println("No available event capacity.");
+        
+        // Confirm ownership of the locked seat
+        if (seat.getLockedByReservationId() != reservationId) {
+            System.out.println(
+                "Seat is locked by another reservation."
+            );
             return false;
         }
 
+        // Confirm the individual seat booking
         if (!inventory.bookSeat(seat.getSeatId(), reservationId)) {
             System.out.println("Seat booking failed.");
             return false;
         }
 
-        if (!event.reserveSeats(1)) {
-            System.out.println("Unable to update event availablity.");
-            return false;
-        }
-        
+        // Confirm reservation and generate digital ticket
         return confirmReservation();
+
     }
 
     //cancel reservation

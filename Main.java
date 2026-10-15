@@ -3,6 +3,9 @@ import java.util.ArrayList;
 
 public class Main {
 
+    // Admin password
+    private static final String ADMIN_PASSWORD = "Admin@123";
+
     public static void main(String[] args) {
 
         Scanner scanner = new Scanner(System.in);
@@ -43,10 +46,18 @@ public class Main {
 
             switch (choice) {
                 case 1:
-                    adminMenu.displayMenu();
 
-                    //create inventories for any newly added events
-                    syncTicketInventories(admin.getEvents(), inventories);
+                    // Check admin password before opening admin menu
+                    if (adminLogin(scanner)) {
+
+                        adminMenu.displayMenu();
+
+                         // Create inventories for newly added events
+                        syncTicketInventories(admin.getEvents(), inventories);
+
+                    } else {
+                        System.out.println("Returning to Main Menu...");
+                    }
 
                     break;
 
@@ -71,6 +82,42 @@ public class Main {
         scanner.close();
     }
 
+    
+    // Admin login authentication
+    private static boolean adminLogin(Scanner scanner) {
+
+        System.out.println("\n===== ADMIN LOGIN =====");
+
+        for (int attempt = 1; attempt <= 3; attempt++) {
+
+            System.out.print("Enter Admin Password: ");
+            String password = scanner.nextLine();
+
+            if (password.equals(ADMIN_PASSWORD)) {
+
+                System.out.println(
+                    "Login successful! Welcome, Administrator."
+                );
+
+                return true;
+
+            } else {
+
+                System.out.println("Incorrect password!");
+
+                System.out.println(
+                    "Attempts remaining: " + (3 - attempt)
+                );
+            }
+        }
+
+        System.out.println(
+            "Maximum login attempts reached. Access denied."
+        );
+
+        return false;
+    }
+
     private static void syncTicketInventories(ArrayList<Event> events, ArrayList<TicketInventory> inventories) {
 
         for (Event event : events) {
@@ -89,6 +136,9 @@ public class Main {
             if (!inventoryExists) {
 
                 TicketInventory newInventory = new TicketInventory(event);
+
+                // Connect the event to its inventory
+                event.setTicketInventory(newInventory);
 
                 inventories.add(newInventory);
 

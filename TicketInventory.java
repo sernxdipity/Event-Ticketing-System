@@ -4,6 +4,7 @@ public class TicketInventory {
     //private attributes
     private Event event;
     private ArrayList<Seat> seats;
+    private boolean bookingActivity = false;
 
     //constructor
     public TicketInventory(Event event) {
@@ -22,6 +23,43 @@ public class TicketInventory {
     public Event getEvent() {
         return event;
     }
+
+
+    // Count seats that are currently available
+    public int getAvailableSeatCount() {
+        int count = 0;
+
+        for (Seat seat : seats) {
+            if (seat.getStatus() == SeatStatus.AVAILABLE) {
+                count++;
+            }
+        }
+
+        return count;
+    }
+
+    // Check whether any reservation activity has occurred
+    public boolean hasBookingActivity() {
+        return bookingActivity;
+    }
+
+    // Rebuild seats after an admin updates allocations
+    public void refreshSeatsFromEvent() {
+
+        if (bookingActivity) {
+            throw new IllegalStateException(
+                "Cannot change allocations after booking activity."
+            );
+        }
+
+        seats.clear();
+        generateSeats();
+
+        System.out.println(
+            "Ticket inventory updated successfully."
+        );
+    }
+
 
 
     //display all seats and their current status
@@ -59,7 +97,13 @@ public class TicketInventory {
         }
 
         if (seat.lockSeat(reservationId)) {
-            System.out.println("Seat " + seatId + " locked successfully.");
+
+            bookingActivity = true;
+
+            System.out.println(
+                "Seat " + seatId + " locked successfully."
+            );
+
             return true;
         }
 

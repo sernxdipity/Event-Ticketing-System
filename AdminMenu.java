@@ -388,6 +388,7 @@ public class AdminMenu {
     }
 
     
+    
     // Update event information
     private void updateEvent() {
 
@@ -401,16 +402,17 @@ public class AdminMenu {
             return;
         }
 
-        System.out.println("1. Update Event Title");
-        System.out.println("2. Update Ticket Price");
-        System.out.println("3. Update Event Schedule");
-        System.out.println("4. Update Ticket Allocation");
+        System.out.println("\n1. Update Event Title");
+        System.out.println("2. Update Standard Ticket Price");
+        System.out.println("3. Update VIP Ticket Price");
+        System.out.println("4. Update Event Schedule");
+        System.out.println("5. Update Ticket Allocation");
 
         int choice = readInt("Enter your choice: ");
 
         switch (choice) {
 
-            case 1:
+            case 1: {
                 System.out.print("Enter New Title: ");
                 String title = scanner.nextLine();
 
@@ -421,19 +423,51 @@ public class AdminMenu {
                     System.out.println("Event title updated!");
                 }
                 break;
+            }
 
-            case 2:
-                double price = readDouble("Enter New Price (RM): ");
+            case 2: {
+                double price = readDouble(
+                    "Enter New Standard Ticket Price (RM): "
+                );
 
-                if (price < 0) {
-                    System.out.println("Price cannot be negative.");
+                if (!Double.isFinite(price) || price <= 0) {
+                    System.out.println(
+                        "Ticket price must be greater than zero."
+                    );
                 } else {
                     admin.updateEventPrice(eventId, price);
-                    System.out.println("Ticket price updated!");
+                    System.out.println(
+                        "Standard ticket price updated!"
+                    );
                 }
                 break;
+            }
 
-            case 3:
+            case 3: {
+                boolean supportsVip =
+                    event instanceof ConcertEvent &&
+                    ((ConcertEvent) event).isVipAvailable();
+
+                if (!supportsVip) {
+                    System.out.println(
+                        "This event does not support VIP tickets."
+                    );
+                    break;
+                }
+
+                double vipPrice = readDouble(
+                    "Enter New VIP Ticket Price (RM): "
+                );
+
+                if (event.setVipTicketPrice(vipPrice)) {
+                    System.out.println(
+                        "VIP ticket price updated successfully!"
+                    );
+                }
+                break;
+            }
+
+            case 4: {
                 LocalDateTime newDateTime = readEventDateTime();
 
                 if (newDateTime != null) {
@@ -441,16 +475,18 @@ public class AdminMenu {
                     System.out.println("Event schedule updated!");
                 }
                 break;
-            
-            case 4:
+            }
+
+            case 5: {
                 updateTicketAllocation(event);
                 break;
-
+            }
 
             default:
                 System.out.println("Invalid choice.");
         }
     }
+
 
 
     // Update ticket allocation for an existing event
@@ -476,10 +512,18 @@ public class AdminMenu {
             return;
         }
 
-        // Read new ticket allocation
         int standardSeats = readInt("Enter New Standard Seats: ");
         int vipSeats = readInt("Enter New VIP Seats: ");
-        double vipPrice = readDouble("Enter New VIP Price (RM): ");
+
+        // Keep the existing VIP price
+        double vipPrice = event.getVipTicketPrice();
+
+        if (vipSeats > 0 && vipPrice <= 0) {
+            System.out.println(
+                "Please set a valid VIP ticket price first using Update Event > Option 3."
+            );
+            return;
+        }
 
         // Validate and update the ticket allocation
         boolean updated = event.configureTicketTiers(

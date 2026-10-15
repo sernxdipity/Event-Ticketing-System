@@ -109,6 +109,20 @@ public class DigitalTicket {
         System.out.println("Ticket Type: " +
             reservation.getSeat().getTicketType());
 
+        // Display ticket pricing
+        System.out.printf("Original Price: RM %.2f%n",
+            reservation.getOriginalPrice());
+
+        if (reservation.getDiscountAmount() > 0) {
+
+            System.out.printf("Early-Bird Discount: -RM %.2f%n",
+                reservation.getDiscountAmount());
+        }
+
+        System.out.printf("Amount Paid: RM %.2f%n",
+            reservation.getFinalAmount());
+
+
         System.out.println("----------------------------------");
 
         // Reservation information

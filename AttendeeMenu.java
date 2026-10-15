@@ -342,15 +342,32 @@ public class AttendeeMenu {
         //Payment process
         System.out.println("\n==== PAYMENT ====");
 
-        double amount;
+        
+        // Retrieve pricing from the reservation
+        double amount = reservation.getFinalAmount();
 
-        if (selectedSeat.getTicketType().equalsIgnoreCase("VIP")) {
-            amount = selectedEvent.getVipTicketPrice();
+        System.out.println("\n===== PAYMENT SUMMARY =====");
+
+        System.out.printf("Original Ticket Price: RM %.2f%n",
+            reservation.getOriginalPrice());
+
+        if (reservation.getDiscountAmount() > 0) {
+
+            System.out.println("Early-Bird Discount: 10%");
+
+            System.out.printf("Discount Amount: -RM %.2f%n",
+                reservation.getDiscountAmount());
+
         } else {
-            amount = selectedEvent.getBaseTicketPrice();
+            System.out.println(
+                "Early-Bird Discount: Not Applicable"
+            );
         }
 
+        System.out.println("----------------------------------");
+
         System.out.printf("Total Amount: RM %.2f%n", amount);
+
 
         
     // Display available payment methods

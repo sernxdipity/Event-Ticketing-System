@@ -9,12 +9,12 @@ public abstract class Event {
     private Venue venue;
     private double baseTicketPrice;
     private int maxCapacity;
-    private int availableSeats;
     private int standardCapacity;
     private int vipCapacity;
     private double vipTicketPrice;
     // Event scheduling
     private LocalDateTime eventDateTime;
+    private TicketInventory ticketInventory;
 
     // Constructor to initialise event details
     public Event(int eventId, String title, Venue venue,
@@ -31,7 +31,6 @@ public abstract class Event {
         this.venue = venue;
         this.baseTicketPrice = baseTicketPrice;
         this.maxCapacity = maxCapacity;
-        this.availableSeats = maxCapacity;
     }
 
     // Getter methods
@@ -56,8 +55,36 @@ public abstract class Event {
     }
 
     public int getAvailableSeats() {
-        return availableSeats;
+
+        if (ticketInventory != null) {
+            return ticketInventory.getAvailableSeatCount();
+        }
+
+        // Before inventory creation, all allocated seats are available
+        return maxCapacity;
     }
+
+
+    // Associate this event with its ticket inventory
+    public void setTicketInventory(TicketInventory inventory) {
+
+        if (inventory == null || inventory.getEvent() != this) {
+            throw new IllegalArgumentException(
+                "Inventory must belong to this event."
+            );
+        }
+
+        if (ticketInventory != null &&
+            ticketInventory != inventory) {
+
+            throw new IllegalStateException(
+                "This event already has a ticket inventory."
+            );
+        }
+
+        this.ticketInventory = inventory;
+    }
+
 
     // Setter methods
     public void setTitle(String title) {
@@ -103,10 +130,34 @@ public abstract class Event {
             return false;
         }
 
+        
+        // Check whether seat quantities are being changed
+        boolean allocationChanged =
+            standardCapacity != standardSeats ||
+            vipCapacity != vipSeats;
+
+        // Prevent changing seats after reservation activity
+        if (allocationChanged &&
+            ticketInventory != null &&
+            ticketInventory.hasBookingActivity()) {
+
+            System.out.println(
+                "Cannot change ticket allocation after " +
+                "reservation activity has started."
+            );
+
+            return false;
+        }
+
         // Store ticket allocations
         standardCapacity = standardSeats;
         vipCapacity = vipSeats;
         vipTicketPrice = vipPrice;
+
+        // Refresh actual seat inventory when allocation changes
+        if (allocationChanged && ticketInventory != null) {
+            ticketInventory.refreshSeatsFromEvent();
+        }
 
         System.out.println("Ticket allocation updated successfully!");
         return true;
@@ -124,6 +175,22 @@ public abstract class Event {
     public double getVipTicketPrice() {
         return vipTicketPrice;
     }
+     
+    // Update VIP ticket price
+    public boolean setVipTicketPrice(double price) {
+
+        if (!Double.isFinite(price) || price <= 0) {
+            System.out.println(
+                "VIP ticket price must be greater than zero."
+            );
+            return false;
+        }
+
+        this.vipTicketPrice = price;
+
+        return true;
+    }
+
 
     // Get event date and time
     public LocalDateTime getEventDateTime() {
@@ -143,26 +210,7 @@ public abstract class Event {
 
     // Check if enough seats are available
     public boolean hasAvailableSeats(int quantity) {
-        return quantity > 0 && availableSeats >= quantity;
-    }
-
-    // Reserve seats and update availability
-    public boolean reserveSeats(int quantity) {
-        if (hasAvailableSeats(quantity)) {
-            availableSeats -= quantity;
-            return true;
-        }
-
-        return false;
-    }
-
-    // Release seats after a cancellation
-    public void releaseSeats(int quantity) {
-        if (quantity > 0 && availableSeats + quantity <= maxCapacity) {
-            availableSeats += quantity;
-        } else {
-            System.out.println("Invalid number of seats to release.");
-        }
+        return quantity > 0 && getAvailableSeats() >= quantity;
     }
 
     
@@ -188,7 +236,7 @@ public abstract class Event {
                           baseTicketPrice);
 
         System.out.println("Maximum Capacity: " + maxCapacity);
-        System.out.println("Available Seats: " + availableSeats);
+        System.out.println("Available Seats: " + getAvailableSeats());
 
         // Display ticket tier information
         System.out.println("\n===== TICKET ALLOCATION =====");
