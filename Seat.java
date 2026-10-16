@@ -68,4 +68,32 @@ public class Seat {
         }
         return false;
     }
+
+
+    // Undo a booked seat if reservation confirmation fails
+    public boolean rollbackBookedSeat(int reservationId) {
+
+        // Only the reservation that booked the seat can undo it
+        if (reservationId > 0 &&
+            status == SeatStatus.BOOKED &&
+            lockedByReservationId == reservationId) {
+
+            // Restore seat availability
+            status = SeatStatus.AVAILABLE;
+            lockedByReservationId = -1;
+
+            System.out.println(
+                "Seat " + seatId + " restored to AVAILABLE."
+            );
+
+            return true;
+        }
+
+        System.out.println(
+            "Unable to roll back seat " + seatId + "."
+        );
+
+        return false;
+    }
+
 }

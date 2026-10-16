@@ -429,11 +429,40 @@ public class AttendeeMenu {
             return;
         }
 
-        //complete the booking
+        
+        // Complete booking after successful payment
         if (!reservation.completeBooking(selectedInventory, payment)) {
-            System.out.println("Booking could not be completed.");
+
+            System.out.println(
+                "\nBooking could not be completed."
+            );
+
+            System.out.println(
+                "Initiating automatic payment reversal..."
+            );
+
+            // Restore seat and reverse simulated payment
+            boolean reversed = reservation.rollbackFailedBooking(
+                selectedInventory, payment
+            );
+
+            if (reversed) {
+                System.out.println(
+                    "Payment reversal completed successfully."
+                );
+
+                System.out.println(
+                    "Your reservation has been cancelled."
+                );
+            } else {
+                System.out.println(
+                    "Automatic recovery failed. Manual review required."
+                );
+            }
+
             return;
         }
+
 
         System.out.println("\n==== BOOKING SUCCESSFULL ====");
         System.out.println("Payment successful via " + paymentMethod + "!");

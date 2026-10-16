@@ -151,6 +151,31 @@ public class TicketInventory {
         return false;
     }
 
+    // Roll back a booked seat if booking confirmation fails
+    public boolean rollbackBookedSeat(String seatId, int reservationId) {
+
+        Seat seat = findSeat(seatId);
+
+        if (seat == null) {
+            System.out.println("Seat does not exist.");
+            return false;
+        }
+
+        if (seat.rollbackBookedSeat(reservationId)) {
+            System.out.println(
+                "Seat " + seatId + " rolled back successfully."
+            );
+            return true;
+        }
+
+        System.out.println(
+            "Unable to roll back seat " + seatId + "."
+        );
+
+        return false;
+    }
+
+
 
     //generate standard and vip seats
     private void generateSeats() {

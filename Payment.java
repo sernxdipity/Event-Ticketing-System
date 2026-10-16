@@ -92,5 +92,41 @@ public class Payment {
             System.out.println("Payment failed!");
             return false;
         }
+
     }
+
+
+    // Reverse a successful payment if booking fails
+    public boolean reversePayment() {
+
+        // Only successful payments can be reversed
+        if (status != PaymentStatus.SUCCESSFUL) {
+            System.out.println(
+                "Only successful payments can be reversed."
+            );
+            return false;
+        }
+
+        // Prevent reversal of confirmed bookings
+        if (reservation.getStatus() != ReservationStatus.PENDING) {
+            System.out.println(
+                "Payment reversal is not allowed for this reservation."
+            );
+            return false;
+        }
+
+        // Update payment status
+        status = PaymentStatus.REVERSED;
+
+        System.out.println("\n===== PAYMENT REVERSAL =====");
+        System.out.println("Payment reversed successfully!");
+        System.out.println("Payment Method: " + paymentMethod);
+
+        System.out.printf("Amount Reversed: RM %.2f%n", amount);
+
+        System.out.println("Payment Status: " + status);
+
+        return true;
+    }
+
 }

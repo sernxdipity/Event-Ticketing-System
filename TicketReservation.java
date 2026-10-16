@@ -247,6 +247,90 @@ public class TicketReservation {
         System.out.println("Reservation cancelled successfully!");
         return true;
     }
+
+
+    // Roll back a booking after successful payment
+    // when reservation completion fails
+    public boolean rollbackFailedBooking(
+            TicketInventory inventory, Payment payment) {
+
+        System.out.println("\n===== BOOKING ROLLBACK =====");
+
+        // Only pending reservations can be rolled back
+        if (status != ReservationStatus.PENDING) {
+            System.out.println(
+                "Only pending reservations can be rolled back."
+            );
+            return false;
+        }
+
+        // Validate inventory and payment ownership
+        if (inventory == null ||
+            inventory.getEvent() != event ||
+            inventory.findSeat(seat.getSeatId()) != seat ||
+            payment == null ||
+            payment.getReservation() != this) {
+
+            System.out.println("Invalid rollback details.");
+            return false;
+        }
+
+        // Payment must have succeeded
+        if (payment.getStatus() != PaymentStatus.SUCCESSFUL) {
+            System.out.println(
+                "No successful payment to reverse."
+            );
+            return false;
+        }
+
+        boolean seatRestored = false;
+
+        // Release a temporarily locked seat
+        if (seat.getStatus() == SeatStatus.LOCKED) {
+
+            seatRestored = inventory.releaseSeat(
+                seat.getSeatId(), reservationId
+            );
+
+        // Undo a seat booked before confirmation failed
+        } else if (seat.getStatus() == SeatStatus.BOOKED) {
+
+            seatRestored = inventory.rollbackBookedSeat(
+                seat.getSeatId(), reservationId
+            );
+
+        // Seat may already have been released
+        } else if (seat.getStatus() == SeatStatus.AVAILABLE) {
+
+            seatRestored = true;
+        }
+
+        // Do not reverse if seat restoration failed
+        if (!seatRestored) {
+            System.out.println(
+                "Seat restoration failed. Manual review required."
+            );
+            return false;
+        }
+
+        // Reverse the successful simulated payment
+        if (!payment.reversePayment()) {
+            System.out.println(
+                "Payment reversal failed. Manual review required."
+            );
+            return false;
+        }
+
+        // Cancel the incomplete reservation
+        status = ReservationStatus.CANCELLED;
+
+        System.out.println(
+            "Reservation cancelled after booking failure."
+        );
+
+        return true;
+    }
+
 }
 
 
