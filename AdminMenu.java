@@ -84,10 +84,14 @@ public class AdminMenu {
             System.out.println("4. Update Event");
             System.out.println("5. Add Venue");
             System.out.println("6. View Venues");
-            System.out.println("7. Return to Main Menu");
+            System.out.println("7. Update Venue");
+            System.out.println("8. Search Venue");
+            System.out.println("9. View Upcoming Events");
+            System.out.println("10. Return to Main Menu");
 
             choice = readInt("Enter your choice: ");
 
+            
             switch (choice) {
                 case 1:
                     addEvent();
@@ -114,6 +118,18 @@ public class AdminMenu {
                     break;
 
                 case 7:
+                    updateVenue();
+                    break;
+
+                case 8:
+                    searchVenue();
+                    break;
+
+                case 9:
+                    admin.viewUpcomingEvents();
+                    break;
+                
+                case 10:
                     System.out.println("Returning to Main Menu...");
                     break;
 
@@ -121,7 +137,7 @@ public class AdminMenu {
                     System.out.println("Invalid choice. Please try again.");
             }
 
-        } while (choice != 7);
+        } while (choice != 10);
     }
 
     // Add a new venue
@@ -152,6 +168,78 @@ public class AdminMenu {
 
         Venue venue = new Venue(venueId, name, location, capacity);
         admin.addVenue(venue);
+    }
+
+
+    // Update venue details
+    private void updateVenue() {
+
+        System.out.println("\n===== UPDATE VENUE =====");
+
+        int venueId = readInt("Enter Venue ID: ");
+        Venue venue = admin.searchVenue(venueId);
+
+        if (venue == null) {
+            System.out.println("Venue not found.");
+            return;
+        }
+
+        System.out.println("\n1. Update Venue Name");
+        System.out.println("2. Update Venue Location");
+        System.out.println("3. Update Venue Capacity");
+
+        int choice = readInt("Enter your choice: ");
+
+        switch (choice) {
+
+            case 1:
+                System.out.print("Enter New Venue Name: ");
+                String newName = scanner.nextLine();
+
+                if (newName.trim().isEmpty()) {
+                    System.out.println("Venue name cannot be empty.");
+                } else {
+                    admin.updateVenueName(venueId, newName);
+                    System.out.println("Venue name updated!");
+                }
+                break;
+
+            case 2:
+                System.out.print("Enter New Venue Location: ");
+                String newLocation = scanner.nextLine();
+
+                if (newLocation.trim().isEmpty()) {
+                    System.out.println("Venue location cannot be empty.");
+                } else {
+                    admin.updateVenueLocation(venueId, newLocation);
+                    System.out.println("Venue location updated!");
+                }
+                break;
+
+            case 3:
+                int newCapacity = readInt("Enter New Capacity: ");
+                admin.updateVenueCapacity(venueId, newCapacity);
+                break;
+
+            default:
+                System.out.println("Invalid choice.");
+        }
+    }
+
+
+    // Search venue by ID
+    private void searchVenue() {
+
+        System.out.println("\n===== SEARCH VENUE =====");
+
+        int venueId = readInt("Enter Venue ID: ");
+        Venue venue = admin.searchVenue(venueId);
+
+        if (venue != null) {
+            venue.displayVenueDetails();
+        } else {
+            System.out.println("Venue not found.");
+        }
     }
 
     // Add a concert or conference
@@ -240,6 +328,34 @@ public class AdminMenu {
             );
         }
 
+        
+        // Configure ticket allocation
+        System.out.println("\n===== TICKET ALLOCATION =====");
+
+        int standardSeats;
+        int vipSeats = 0;
+        double vipPrice = 0;
+
+        boolean supportsVip = event instanceof ConcertEvent &&
+            ((ConcertEvent) event).isVipAvailable();
+
+        if (supportsVip) {
+            standardSeats = readInt("Enter Standard Seats: ");
+            vipSeats = readInt("Enter VIP Seats: ");
+            vipPrice = readDouble("Enter VIP Price (RM): ");
+        } else {
+            standardSeats = capacity;
+        }
+
+        boolean allocationValid = event.configureTicketTiers(
+            standardSeats, vipSeats, vipPrice
+        );
+
+        if (!allocationValid) {
+            System.out.println("Event was not added.");
+            return;
+        }
+
         // Request event schedule
         LocalDateTime dateTime = readEventDateTime();
 
@@ -272,6 +388,7 @@ public class AdminMenu {
     }
 
     
+    
     // Update event information
     private void updateEvent() {
 
@@ -285,15 +402,17 @@ public class AdminMenu {
             return;
         }
 
-        System.out.println("1. Update Event Title");
-        System.out.println("2. Update Ticket Price");
-        System.out.println("3. Update Event Schedule");
+        System.out.println("\n1. Update Event Title");
+        System.out.println("2. Update Standard Ticket Price");
+        System.out.println("3. Update VIP Ticket Price");
+        System.out.println("4. Update Event Schedule");
+        System.out.println("5. Update Ticket Allocation");
 
         int choice = readInt("Enter your choice: ");
 
         switch (choice) {
 
-            case 1:
+            case 1: {
                 System.out.print("Enter New Title: ");
                 String title = scanner.nextLine();
 
@@ -304,19 +423,51 @@ public class AdminMenu {
                     System.out.println("Event title updated!");
                 }
                 break;
+            }
 
-            case 2:
-                double price = readDouble("Enter New Price (RM): ");
+            case 2: {
+                double price = readDouble(
+                    "Enter New Standard Ticket Price (RM): "
+                );
 
-                if (price < 0) {
-                    System.out.println("Price cannot be negative.");
+                if (!Double.isFinite(price) || price <= 0) {
+                    System.out.println(
+                        "Ticket price must be greater than zero."
+                    );
                 } else {
                     admin.updateEventPrice(eventId, price);
-                    System.out.println("Ticket price updated!");
+                    System.out.println(
+                        "Standard ticket price updated!"
+                    );
                 }
                 break;
+            }
 
-            case 3:
+            case 3: {
+                boolean supportsVip =
+                    event instanceof ConcertEvent &&
+                    ((ConcertEvent) event).isVipAvailable();
+
+                if (!supportsVip) {
+                    System.out.println(
+                        "This event does not support VIP tickets."
+                    );
+                    break;
+                }
+
+                double vipPrice = readDouble(
+                    "Enter New VIP Ticket Price (RM): "
+                );
+
+                if (event.setVipTicketPrice(vipPrice)) {
+                    System.out.println(
+                        "VIP ticket price updated successfully!"
+                    );
+                }
+                break;
+            }
+
+            case 4: {
                 LocalDateTime newDateTime = readEventDateTime();
 
                 if (newDateTime != null) {
@@ -324,9 +475,73 @@ public class AdminMenu {
                     System.out.println("Event schedule updated!");
                 }
                 break;
+            }
+
+            case 5: {
+                updateTicketAllocation(event);
+                break;
+            }
 
             default:
                 System.out.println("Invalid choice.");
         }
     }
+
+
+
+    // Update ticket allocation for an existing event
+    private void updateTicketAllocation(Event event) {
+
+        System.out.println("\n===== UPDATE TICKET ALLOCATION =====");
+
+        System.out.println("Event: " + event.getTitle());
+        System.out.println("Maximum Capacity: " + event.getMaxCapacity());
+        System.out.println("Current Standard Seats: " +
+                           event.getStandardCapacity());
+        System.out.println("Current VIP Seats: " +
+                           event.getVipCapacity());
+
+        // Check whether this concert supports VIP tickets
+        boolean supportsVip = event instanceof ConcertEvent &&
+            ((ConcertEvent) event).isVipAvailable();
+
+        if (!supportsVip) {
+            System.out.println(
+                "This event only supports Standard tickets."
+            );
+            return;
+        }
+
+        int standardSeats = readInt("Enter New Standard Seats: ");
+        int vipSeats = readInt("Enter New VIP Seats: ");
+
+        // Keep the existing VIP price
+        double vipPrice = event.getVipTicketPrice();
+
+        if (vipSeats > 0 && vipPrice <= 0) {
+            System.out.println(
+                "Please set a valid VIP ticket price first using Update Event > Option 3."
+            );
+            return;
+        }
+
+        // Validate and update the ticket allocation
+        boolean updated = event.configureTicketTiers(
+            standardSeats, vipSeats, vipPrice
+        );
+
+        if (updated) {
+            System.out.println("New ticket allocations:");
+            System.out.println("Standard: " +
+                               event.getStandardCapacity());
+            System.out.println("VIP: " +
+                               event.getVipCapacity());
+
+            System.out.printf("VIP Price: RM %.2f%n",
+                              event.getVipTicketPrice());
+        } else {
+            System.out.println("Ticket allocation was not updated.");
+        }
+    }
+
 }

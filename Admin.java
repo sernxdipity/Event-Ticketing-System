@@ -1,4 +1,5 @@
 import java.util.ArrayList;
+import java.time.LocalDateTime;
 
 public class Admin {
 
@@ -61,6 +62,56 @@ public class Admin {
             System.out.println("-----------------------------");
         }
     }
+
+
+    // Display only upcoming events
+    public void viewUpcomingEvents() {
+
+        System.out.println("\n===== UPCOMING EVENTS =====");
+
+        boolean eventFound = false;
+
+        // Check every event in the system
+        for (Event event : events) {
+
+            LocalDateTime eventDate = event.getEventDateTime();
+
+            // Display events scheduled in the future
+            if (eventDate != null &&
+                eventDate.isAfter(LocalDateTime.now())) {
+
+                event.displayEventDetails();
+                System.out.println("Event Type: " +
+                                   event.getEventType());
+
+                System.out.println("-----------------------------");
+
+                eventFound = true;
+            }
+        }
+
+        // Display a message when no upcoming events exist
+        if (!eventFound) {
+            System.out.println("No upcoming events available.");
+        }
+    }
+
+    // Allow other parts of the system to retrieve upcoming events
+    public ArrayList<Event> getUpcomingEvents() {
+
+        ArrayList<Event> upcomingEvents = new ArrayList<Event>();
+
+        for (Event event : events) {
+            if (event.getEventDateTime() != null &&
+                event.getEventDateTime().isAfter(LocalDateTime.now())) {
+
+                upcomingEvents.add(event);
+            }
+        }
+
+        return upcomingEvents;
+    }
+
 
     // Search for an event by ID
     public Event searchEvent(int eventId) {
@@ -165,5 +216,42 @@ public class Admin {
         } else {
             System.out.println("Venue not found.");
         }
+    }
+
+
+    // Update venue capacity
+    public void updateVenueCapacity(int venueId, int newCapacity) {
+
+        Venue venue = searchVenue(venueId);
+
+        if (venue == null) {
+            System.out.println("Venue not found.");
+            return;
+        }
+
+        if (newCapacity <= 0) {
+            System.out.println("Invalid venue capacity.");
+            return;
+        }
+
+        // Prevent capacity from becoming smaller than assigned events
+        for (Event event : events) {
+            if (event.getVenue().getVenueId() == venueId &&
+                event.getMaxCapacity() > newCapacity) {
+
+                System.out.println(
+                    "Cannot reduce capacity below an existing event's capacity."
+                );
+                return;
+            }
+        }
+
+        venue.setCapacity(newCapacity);
+        System.out.println("Venue capacity updated successfully!");
+    }
+
+    // Allow other system components to access the event list
+    public ArrayList<Event> getEvents() {
+        return events;
     }
 }
