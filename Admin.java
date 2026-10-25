@@ -1,5 +1,6 @@
 import java.util.ArrayList;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 
 public class Admin {
 
@@ -65,36 +66,51 @@ public class Admin {
 
 
     // Display only upcoming events
+    
     public void viewUpcomingEvents() {
 
-        System.out.println("\n===== UPCOMING EVENTS =====");
+        CliTheme.section("♫ Upcoming Events - Next 7 Days");
 
-        boolean eventFound = false;
+        LocalDateTime now = LocalDateTime.now();
+        LocalDateTime sevenDaysLater = now.plusDays(7);
 
-        // Check every event in the system
+        boolean found = false;
+
         for (Event event : events) {
 
             LocalDateTime eventDate = event.getEventDateTime();
 
-            // Display events scheduled in the future
-            if (eventDate != null &&
-                eventDate.isAfter(LocalDateTime.now())) {
+            // Show events happening within the next 7 days only
+            if (eventDate != null
+                    && eventDate.isAfter(now)
+                    && !eventDate.isAfter(sevenDaysLater)) {
 
-                event.displayEventDetails();
-                System.out.println("Event Type: " +
-                                   event.getEventType());
+                found = true;
 
-                System.out.println("-----------------------------");
+                System.out.println("\n----------------------------------");
+                System.out.println("Event ID: " + event.getEventId());
+                System.out.println("Title: " + event.getTitle());
+                System.out.println("Type: " + event.getEventType());
+                System.out.println("Venue: " +
+                        event.getVenue().getVenueName());
 
-                eventFound = true;
+                System.out.println("Date & Time: " +
+                        eventDate.format(
+                            DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm")
+                        ));
+
+                System.out.println("Available Seats: " +
+                        event.getAvailableSeats());
+
+                System.out.println("----------------------------------");
             }
         }
 
-        // Display a message when no upcoming events exist
-        if (!eventFound) {
-            System.out.println("No upcoming events available.");
+        if (!found) {
+            CliTheme.error("No events scheduled within the next 7 days.");
         }
     }
+
 
     // Allow other parts of the system to retrieve upcoming events
     public ArrayList<Event> getUpcomingEvents() {

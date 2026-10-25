@@ -16,12 +16,12 @@ public class AdminMenu {
     // Read an integer safely
     private int readInt(String message) {
         while (true) {
-            System.out.print(message);
+            CliTheme.prompt(message);
 
             try {
                 return Integer.parseInt(scanner.nextLine());
             } catch (NumberFormatException e) {
-                System.out.println("Invalid input. Please enter a number.");
+                CliTheme.error("Invalid input. Please enter a number.");
             }
         }
     }
@@ -29,12 +29,12 @@ public class AdminMenu {
     // Read a decimal number safely
     private double readDouble(String message) {
         while (true) {
-            System.out.print(message);
+            CliTheme.prompt(message);
 
             try {
                 return Double.parseDouble(scanner.nextLine());
             } catch (NumberFormatException e) {
-                System.out.println("Invalid input. Please enter a valid price.");
+                CliTheme.error("Invalid input. Please enter a valid price.");
             }
         }
     }
@@ -43,10 +43,10 @@ public class AdminMenu {
     // Read and validate event schedule
     private LocalDateTime readEventDateTime() {
 
-        System.out.print("Enter Event Date (YYYY-MM-DD): ");
+        CliTheme.prompt("Enter Event Date (YYYY-MM-DD): ");
         String date = scanner.nextLine();
 
-        System.out.print("Enter Event Time (HH:MM): ");
+        CliTheme.prompt("Enter Event Time (HH:MM): ");
         String time = scanner.nextLine();
 
         try {
@@ -77,17 +77,19 @@ public class AdminMenu {
         int choice;
 
         do {
-            System.out.println("\n===== ADMIN MENU =====");
-            System.out.println("1. Add Event");
-            System.out.println("2. View All Events");
-            System.out.println("3. Search Event");
-            System.out.println("4. Update Event");
-            System.out.println("5. Add Venue");
-            System.out.println("6. View Venues");
-            System.out.println("7. Update Venue");
-            System.out.println("8. Search Venue");
-            System.out.println("9. View Upcoming Events");
-            System.out.println("10. Return to Main Menu");
+            CliTheme.section("Admin Menu");
+
+            CliTheme.option(1, "♫ Add Event");
+            CliTheme.option(2, "♪ View All Events");
+            CliTheme.option(3, "✧ Search Event");
+            CliTheme.option(4, "♬ Update Event");
+            CliTheme.option(5, "✧ Add Venue");
+            CliTheme.option(6, "✧ View Venues");
+            CliTheme.option(7, "✧ Update Venue");
+            CliTheme.option(8, "✧ Search Venue");
+            CliTheme.option(9, "♫ View Upcoming Events");
+            CliTheme.option(10, "↩ Return to Main Menu");
+
 
             choice = readInt("Enter your choice: ");
 
@@ -143,7 +145,7 @@ public class AdminMenu {
     // Add a new venue
     private void addVenue() {
 
-        System.out.println("\n===== ADD VENUE =====");
+        CliTheme.section("Add Venue");
 
         int venueId = readInt("Enter Venue ID: ");
 
@@ -174,7 +176,7 @@ public class AdminMenu {
     // Update venue details
     private void updateVenue() {
 
-        System.out.println("\n===== UPDATE VENUE =====");
+        CliTheme.section("Update Venue");
 
         int venueId = readInt("Enter Venue ID: ");
         Venue venue = admin.searchVenue(venueId);
@@ -230,7 +232,7 @@ public class AdminMenu {
     // Search venue by ID
     private void searchVenue() {
 
-        System.out.println("\n===== SEARCH VENUE =====");
+        CliTheme.section("Search Venue");
 
         int venueId = readInt("Enter Venue ID: ");
         Venue venue = admin.searchVenue(venueId);
@@ -244,10 +246,9 @@ public class AdminMenu {
 
     // Add a concert or conference
     private void addEvent() {
-
-        System.out.println("\n===== ADD EVENT =====");
-        System.out.println("1. Concert");
-        System.out.println("2. Conference");
+        CliTheme.section("Add Event");
+        CliTheme.option(1, "♫ Concert");
+        CliTheme.option(2, "✧ Conference");
 
         int type = readInt("Select Event Type: ");
 
@@ -255,6 +256,16 @@ public class AdminMenu {
             System.out.println("Invalid event type.");
             return;
         }
+
+        // Display artwork based on selected event type
+        if (type == 1) {
+            CliTheme.concertArt();
+            CliTheme.section("Concert Details");
+        } else {
+            CliTheme.conferenceArt();
+            CliTheme.section("Conference Details");
+        }
+
 
         int eventId = readInt("Enter Event ID: ");
 
@@ -330,7 +341,7 @@ public class AdminMenu {
 
         
         // Configure ticket allocation
-        System.out.println("\n===== TICKET ALLOCATION =====");
+        CliTheme.section("Ticket Allocation");
 
         int standardSeats;
         int vipSeats = 0;
@@ -374,7 +385,7 @@ public class AdminMenu {
     // Search for an event
     private void searchEvent() {
 
-        System.out.println("\n===== SEARCH EVENT =====");
+        CliTheme.section("Search Event");
 
         int eventId = readInt("Enter Event ID: ");
         Event event = admin.searchEvent(eventId);
@@ -392,7 +403,7 @@ public class AdminMenu {
     // Update event information
     private void updateEvent() {
 
-        System.out.println("\n===== UPDATE EVENT =====");
+        CliTheme.section("Update Event");
 
         int eventId = readInt("Enter Event ID: ");
         Event event = admin.searchEvent(eventId);
@@ -492,7 +503,7 @@ public class AdminMenu {
     // Update ticket allocation for an existing event
     private void updateTicketAllocation(Event event) {
 
-        System.out.println("\n===== UPDATE TICKET ALLOCATION =====");
+        CliTheme.section("Update Ticket Allocation");
 
         System.out.println("Event: " + event.getTitle());
         System.out.println("Maximum Capacity: " + event.getMaxCapacity());

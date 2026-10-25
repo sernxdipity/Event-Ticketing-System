@@ -38,14 +38,14 @@ public class AttendeeMenu {
         int choice;
 
         do {
-            System.out.println("\n===== ATTENDEE MENU =====");
-            System.out.println("1. View Available Events");
-            System.out.println("2. View Available Seats");
-            System.out.println("3. Make Reservation");
-            System.out.println("4. View My Reservations");
-            System.out.println("5. Exit");
+            CliTheme.section("♫ Attendee Menu ♪");
+            CliTheme.option(1, "♫ View Available Events");
+            CliTheme.option(2, "♪ View Available Seats");
+            CliTheme.option(3, "✧ Make Reservation");
+            CliTheme.option(4, "✧ View My Reservations");
+            CliTheme.option(5, "↩ Exit");
 
-            System.out.print("Enter your choice: ");
+            CliTheme.prompt("Enter your choice: ");
 
             if (scanner.hasNextInt()) {
                 choice = scanner.nextInt();
@@ -87,6 +87,7 @@ public class AttendeeMenu {
     // Display available events with schedules and ticket prices
     public void viewAvailableEvents() {
 
+        CliTheme.section("Available Events");
         System.out.println("\n===== AVAILABLE EVENTS =====");
 
         if (events.isEmpty()) {
@@ -128,6 +129,7 @@ public class AttendeeMenu {
     //case2
     public void viewAvailableSeats() {
 
+        CliTheme.section("♫ Choose Your Seat");
         System.out.println("\n===== VIEW AVAILABLE SEATS =====");
 
         if (events.isEmpty()) {
@@ -138,7 +140,7 @@ public class AttendeeMenu {
         //Show events first
         viewAvailableEvents();
 
-        System.out.print("\nEnter Event ID: ");
+        CliTheme.prompt("\nEnter Event ID: ");
 
         if (!scanner.hasNextInt()) {
             System.out.println("Invalid Event ID.");
@@ -167,7 +169,7 @@ public class AttendeeMenu {
     //case3
     public void makeReservation() {
 
-        System.out.println("\n===== MAKE RESERVATION =====");
+        CliTheme.section("\n===== MAKE RESERVATION =====");
 
         //Check whether events are available
         if (events.isEmpty()) {
@@ -179,7 +181,7 @@ public class AttendeeMenu {
         viewAvailableEvents();
 
         //Ask attendee to select an event
-        System.out.print("\nEnter Event ID: ");
+        CliTheme.prompt("\nEnter Event ID: ");
 
         if (!scanner.hasNextInt()) {
             System.out.println("Invalid input. Please enter a number.");
@@ -275,6 +277,7 @@ public class AttendeeMenu {
 
         
     // Ask for attendee details
+    CliTheme.section("Your Details");
     System.out.println("\n===== ATTENDEE DETAILS =====");
 
     // Clear the newline remaining after seat selection
@@ -284,14 +287,14 @@ public class AttendeeMenu {
     String name;
 
     while (true) {
-        System.out.print("Enter your name: ");
+        CliTheme.prompt("Enter your name: ");
         name = scanner.nextLine().trim();
 
         if (name.matches("[\\p{L}]+(?:[ .'-][\\p{L}]+)*")) {
             break;
         }
 
-        System.out.println(
+        CliTheme.error(
             "Invalid name. Please enter a name using letters."
         );
     }
@@ -300,7 +303,7 @@ public class AttendeeMenu {
     String email;
 
     while (true) {
-        System.out.print("Enter your email: ");
+        CliTheme.prompt("Enter your email: ");
         email = scanner.nextLine().trim();
 
         if (email.matches(
@@ -308,7 +311,7 @@ public class AttendeeMenu {
             break;
         }
 
-        System.out.println(
+        CliTheme.error(
             "Invalid email. Example: example@gmail.com"
         );
     }

@@ -25,16 +25,17 @@ public class Main {
         int choice;
 
         do {
-            System.out.println("\n===================================");
-            System.out.println(" EVENT TICKETING SYSTEM");
-            System.out.println("===================================");
+            
+            // Baby blue music-themed main menu
+            CliTheme.banner();
 
-            System.out.println("\n===== MAIN MENU =====");
-            System.out.println("1. Admin");
-            System.out.println("2. Attendee");
-            System.out.println("3. Exit");
+            CliTheme.section("Main Menu");
 
-            System.out.print("Enter your choice: ");
+            CliTheme.option(1, "♪ Admin Login");
+            CliTheme.option(2, "♫ Attendee");
+            CliTheme.option(3, "✧ Exit");
+
+            CliTheme.prompt("Enter your choice: ");
 
             try {
                 choice = Integer.parseInt(scanner.nextLine());
@@ -84,39 +85,41 @@ public class Main {
 
     
     // Admin login authentication
+    // Administrator authentication
     private static boolean adminLogin(Scanner scanner) {
 
-        System.out.println("\n===== ADMIN LOGIN =====");
+        CliTheme.section("Admin Login");
 
         for (int attempt = 1; attempt <= 3; attempt++) {
 
-            System.out.print("Enter Admin Password: ");
+            CliTheme.prompt("Enter Admin Password: ");
             String password = scanner.nextLine();
 
             if (password.equals(ADMIN_PASSWORD)) {
 
-                System.out.println(
-                    "Login successful! Welcome, Administrator."
+                CliTheme.success(
+                    "Welcome back, Administrator! ♪"
                 );
 
                 return true;
 
             } else {
 
-                System.out.println("Incorrect password!");
+                CliTheme.error("Incorrect password!");
 
                 System.out.println(
-                    "Attempts remaining: " + (3 - attempt)
+                    "  Attempts remaining: " + (3 - attempt)
                 );
             }
         }
 
-        System.out.println(
-            "Maximum login attempts reached. Access denied."
+        CliTheme.error(
+            "Maximum attempts reached. Access denied."
         );
 
         return false;
     }
+
 
     private static void syncTicketInventories(ArrayList<Event> events, ArrayList<TicketInventory> inventories) {
 
